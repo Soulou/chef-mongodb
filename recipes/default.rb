@@ -81,7 +81,18 @@ end
 
 case node['platform']
 when "debian", "ubuntu"
+  template "/etc/default/mongodb" do
+    source "default_mongodb.erb"
+    owner "root"
+    group "root"
+    mode 0644
+  end
   service "mongodb" do
+    if node['platform'] == 'ubuntu'
+      provider Chef::Provider::Service::Upstart
+    else
+      provider Chef::Provider::Service::Init::Debian
+    end
     supports :restart => true, :status => true
     action [:enable, :start]
   end
